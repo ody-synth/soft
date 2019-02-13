@@ -51,10 +51,11 @@
 #include "pin_manager.h"
 #include <stdint.h>
 #include <stdbool.h>
+#include "interrupt_manager.h"
 #include "spi_driver.h"
-#include "pwm2.h"
 #include "tmr1.h"
 #include "tmr2.h"
+#include "adc.h"
 #include "eusart.h"
 
 
