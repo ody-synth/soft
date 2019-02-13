@@ -8,13 +8,13 @@
     eusart.c
 
   @Summary
-    This is the generated driver implementation file for the EUSART driver using PIC10 / PIC12 / PIC16 / PIC18 MCUs
+    This is the generated driver implementation file for the EUSART driver using LIN Library
 
   @Description
     This source file provides APIs for EUSART.
     Generation Information :
-        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.65.2
-        Device            :  PIC16F1455
+        Product Revision  :  LIN Library - 2.2
+        Device            :  PIC16F1459
         Driver Version    :  2.01
     The generated drivers are tested against the following:
         Compiler          :  XC8 1.45
@@ -49,10 +49,19 @@
 */
 #include "eusart.h"
 
+volatile eusart_status_t eusartRxLastError;
 
 /**
   Section: EUSART APIs
 */
+void (*EUSART_FramingErrorHandler)(void);
+void (*EUSART_OverrunErrorHandler)(void);
+void (*EUSART_ErrorHandler)(void);
+
+void EUSART_DefaultFramingErrorHandler(void);
+void EUSART_DefaultOverrunErrorHandler(void);
+void EUSART_DefaultErrorHandler(void);
+
 void EUSART_Initialize(void)
 {
     // Set the EUSART module to the options selected in the user interface.
@@ -73,6 +82,12 @@ void EUSART_Initialize(void)
     SPBRGH = 0x01;
 
 
+    EUSART_SetFramingErrorHandler(EUSART_DefaultFramingErrorHandler);
+    EUSART_SetOverrunErrorHandler(EUSART_DefaultOverrunErrorHandler);
+    EUSART_SetErrorHandler(EUSART_DefaultErrorHandler);
+
+    eusartRxLastError.status = 0;
+
 }
 
 bool EUSART_is_tx_ready(void)
@@ -90,19 +105,30 @@ bool EUSART_is_tx_done(void)
     return TXSTAbits.TRMT;
 }
 
+eusart_status_t EUSART_get_last_status(void){
+    return eusartRxLastError;
+}
+
 uint8_t EUSART_Read(void)
 {
     while(!PIR1bits.RCIF)
     {
     }
 
-    
-    if(1 == RCSTAbits.OERR)
-    {
-        // EUSART error - restart
+    eusartRxLastError.status = 0;
 
-        RCSTAbits.CREN = 0; 
-        RCSTAbits.CREN = 1; 
+    if(RCSTAbits.FERR){
+        eusartRxLastError.ferr = 1;
+        EUSART_FramingErrorHandler();
+    }
+    
+    if(RCSTAbits.OERR){
+        eusartRxLastError.oerr = 1;
+        EUSART_OverrunErrorHandler();
+    }
+
+    if(eusartRxLastError.status){
+        EUSART_ErrorHandler();
     }
 
     return RCREG;
@@ -119,6 +145,31 @@ void EUSART_Write(uint8_t txData)
 
 
 
+
+void EUSART_DefaultFramingErrorHandler(void){}
+
+void EUSART_DefaultOverrunErrorHandler(void){
+    // EUSART error - restart
+
+    RCSTAbits.CREN = 0;
+    RCSTAbits.CREN = 1;
+
+}
+
+void EUSART_DefaultErrorHandler(void){
+}
+
+void EUSART_SetFramingErrorHandler(void (* interruptHandler)(void)){
+    EUSART_FramingErrorHandler = interruptHandler;
+}
+
+void EUSART_SetOverrunErrorHandler(void (* interruptHandler)(void)){
+    EUSART_OverrunErrorHandler = interruptHandler;
+}
+
+void EUSART_SetErrorHandler(void (* interruptHandler)(void)){
+    EUSART_ErrorHandler = interruptHandler;
+}
 
 
 /**

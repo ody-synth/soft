@@ -52,7 +52,7 @@ __bit spi_master_open(spi_modes spiUniqueConfiguration)
         SSP1CON2 = 0x00;
         SSP1ADD  = (uint8_t) (spi_configuration[spiUniqueConfiguration].add | 0);
 
-        TRISCbits.TRISC0 = 0;
+        TRISBbits.TRISB6 = 0;
         return true;
     }
     return false;
@@ -69,7 +69,7 @@ __bit spi_slave_open(spi_modes spiUniqueConfiguration)
         SSP1CON2 = 0x00;
         SSP1ADD  = (uint8_t) (spi_configuration[spiUniqueConfiguration].add | 0);
         
-        TRISCbits.TRISC0 = 1;
+        TRISBbits.TRISB6 = 1;
         return true;
     }
     return false;

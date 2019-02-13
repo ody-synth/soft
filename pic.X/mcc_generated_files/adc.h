@@ -8,14 +8,14 @@
     adc.h
 
   @Summary
-    This is the generated header file for the ADC driver using PIC10 / PIC12 / PIC16 / PIC18 MCUs
+    This is the generated header file for the ADC driver using Foundation Services Library
 
   @Description
     This header file provides APIs for driver for ADC.
     Generation Information :
-        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.65.2
-        Device            :  PIC16F1455
-        Driver Version    :  2.01
+        Product Revision  :  Foundation Services Library - 0.1.29
+        Device            :  PIC16F1459
+        Driver Version    :  2.00
     The generated drivers are tested against the following:
         Compiler          :  XC8 1.45
         MPLAB             :  MPLAB X 4.15
