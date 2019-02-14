@@ -213,6 +213,14 @@
 #define TRIGGER_SetAnalogMode()      do { ANSELCbits.ANSC3 = 1; } while(0)
 #define TRIGGER_SetDigitalMode()     do { ANSELCbits.ANSC3 = 0; } while(0)
 
+// get/set RC5 procedures
+#define RC5_SetHigh()            do { LATCbits.LATC5 = 1; } while(0)
+#define RC5_SetLow()             do { LATCbits.LATC5 = 0; } while(0)
+#define RC5_Toggle()             do { LATCbits.LATC5 = ~LATCbits.LATC5; } while(0)
+#define RC5_GetValue()              PORTCbits.RC5
+#define RC5_SetDigitalInput()    do { TRISCbits.TRISC5 = 1; } while(0)
+#define RC5_SetDigitalOutput()   do { TRISCbits.TRISC5 = 0; } while(0)
+
 // get/set SDO aliases
 #define SDO_TRIS                 TRISCbits.TRISC7
 #define SDO_LAT                  LATCbits.LATC7
