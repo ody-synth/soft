@@ -42,10 +42,31 @@
 */
 
 #include "mcc_generated_files/mcc.h"
+#include "mcc_generated_files/eusart.h"
+#include "mcc_generated_files/adc.h"
+#include "ad9833.h"
+#include "midiparser.h"
 
 /*
                          Main application
  */
+void midiparsing(){
+    int i = 0;
+    bool midiin = false;
+    if(EUSART_is_rx_ready()){
+        midi[0] = 0;
+        midi[1] = 0;
+        midi[2] = 0;
+    }
+    while(EUSART_is_rx_ready()){
+        midi[i++] = EUSART_Read();
+        midiin = true;
+    } 
+    if(midiin)
+        parseMidi(i);
+}
+
+uint8_t midi[3];
 void main(void)
 {
     // initialize the device
@@ -55,20 +76,45 @@ void main(void)
     // Use the following macros to:
 
     // Enable the Global Interrupts
-    //INTERRUPT_GlobalInterruptEnable();
+    INTERRUPT_GlobalInterruptEnable();
 
     // Enable the Peripheral Interrupts
-    //INTERRUPT_PeripheralInterruptEnable();
+    INTERRUPT_PeripheralInterruptEnable();
 
     // Disable the Global Interrupts
     //INTERRUPT_GlobalInterruptDisable();
 
     // Disable the Peripheral Interrupts
     //INTERRUPT_PeripheralInterruptDisable();
+    ad9833_reset();
+    __delay_ms(100);
+    ad9833_Output(false);
+    
+    uint16_t actualWave = SINE;
 
     while (1)
     {
+        uint16_t wave = ADC_GetConversion(WAVE);
+        if(wave){
+            if(wave < 333){
+                if(actualWave != SINE){
+                    ad9833_setW(REG0, SINE);
+                    actualWave = SINE;
+                }
+            }else if(wave > 333 && wave < 666){
+                if(actualWave != SQUARE){
+                    ad9833_setW(REG0, SQUARE);
+                    actualWave = SQUARE;
+                }
+            }else{
+                if(actualWave != TRIANGLE){
+                    ad9833_setW(REG0, TRIANGLE);
+                    actualWave = TRIANGLE;
+                }
+            }
+        }
         // Add your application code
+        midiparsing();
     }
 }
 /**

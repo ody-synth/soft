@@ -47,8 +47,9 @@
 */
 
 #include "pin_manager.h"
-
-
+#include "../ad9833.h"
+#include "pwm1.h"
+#include "tmr2.h"
 
 
 void (*IOCAF1_InterruptHandler)(void);
@@ -56,6 +57,8 @@ void (*IOCAF4_InterruptHandler)(void);
 void (*IOCAF5_InterruptHandler)(void);
 void (*IOCBF7_InterruptHandler)(void);
 
+signed long encoder1 = 0;
+signed long encoder2 = 0;
 
 void PIN_MANAGER_Initialize(void)
 {
@@ -187,6 +190,13 @@ void IOCAF1_SetInterruptHandler(void (* InterruptHandler)(void)){
 void IOCAF1_DefaultInterruptHandler(void){
     // add your IOCAF1 interrupt custom code
     // or set custom function using IOCAF1_SetInterruptHandler()
+    A2_GetValue()?encoder2++:encoder2--;
+    if(encoder2 > 2048)
+        encoder2 = 2048;
+    if(encoder2 < -2048)
+        encoder2 = -2048;
+    
+    PWM1_LoadDutyValue((encoder2+2048)/4);
 }
 
 /**
@@ -217,6 +227,10 @@ void IOCAF4_SetInterruptHandler(void (* InterruptHandler)(void)){
 void IOCAF4_DefaultInterruptHandler(void){
     // add your IOCAF4 interrupt custom code
     // or set custom function using IOCAF4_SetInterruptHandler()
+    
+    B1_GetValue()?encoder1++:encoder1--;
+    ad9833_setF(REG0, frequency0+encoder1);
+    TMR2_LoadPeriodRegister(0x77-(uint16_t)(encoder1/200));
 }
 
 /**
@@ -247,6 +261,9 @@ void IOCAF5_SetInterruptHandler(void (* InterruptHandler)(void)){
 void IOCAF5_DefaultInterruptHandler(void){
     // add your IOCAF5 interrupt custom code
     // or set custom function using IOCAF5_SetInterruptHandler()
+    A1_GetValue()?encoder1++:encoder1--;
+    ad9833_setF(REG0, frequency0+encoder1);
+    TMR2_LoadPeriodRegister(0x77-(uint16_t)(encoder1/200));
 }
 
 /**
@@ -277,6 +294,14 @@ void IOCBF7_SetInterruptHandler(void (* InterruptHandler)(void)){
 void IOCBF7_DefaultInterruptHandler(void){
     // add your IOCBF7 interrupt custom code
     // or set custom function using IOCBF7_SetInterruptHandler()
+    B2_GetValue()?encoder2++:encoder2--;
+    if(encoder2 > 2048)
+        encoder2 = 2048;
+    
+    if(encoder2 < -2048)
+        encoder2 = -2048;
+    
+    PWM1_LoadDutyValue((encoder2+2048)/4);
 }
 
 /**

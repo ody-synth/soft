@@ -8,17 +8,17 @@
     eusart.c
 
   @Summary
-    This is the generated driver implementation file for the EUSART driver using LIN Library
+    This is the generated driver implementation file for the EUSART driver using PIC10 / PIC12 / PIC16 / PIC18 MCUs
 
   @Description
     This source file provides APIs for EUSART.
     Generation Information :
-        Product Revision  :  LIN Library - 2.2
+        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.76
         Device            :  PIC16F1459
-        Driver Version    :  2.01
+        Driver Version    :  2.1.0
     The generated drivers are tested against the following:
-        Compiler          :  XC8 1.45
-        MPLAB 	          :  MPLAB X 4.15
+        Compiler          :  XC8 2.00
+        MPLAB 	          :  MPLAB X 5.10
 */
 
 /*
@@ -116,19 +116,13 @@ uint8_t EUSART_Read(void)
     }
 
     eusartRxLastError.status = 0;
-
-    if(RCSTAbits.FERR){
-        eusartRxLastError.ferr = 1;
-        EUSART_FramingErrorHandler();
-    }
     
-    if(RCSTAbits.OERR){
-        eusartRxLastError.oerr = 1;
-        EUSART_OverrunErrorHandler();
-    }
+    if(1 == RCSTAbits.OERR)
+    {
+        // EUSART error - restart
 
-    if(eusartRxLastError.status){
-        EUSART_ErrorHandler();
+        RCSTAbits.CREN = 0; 
+        RCSTAbits.CREN = 1; 
     }
 
     return RCREG;

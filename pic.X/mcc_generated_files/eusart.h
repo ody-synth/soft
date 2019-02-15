@@ -8,17 +8,17 @@
     eusart.h
 
   @Summary
-    This is the generated header file for the EUSART driver using LIN Library
+    This is the generated header file for the EUSART driver using PIC10 / PIC12 / PIC16 / PIC18 MCUs
 
   @Description
     This header file provides APIs for driver for EUSART.
     Generation Information :
-        Product Revision  :  LIN Library - 2.2
+        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.76
         Device            :  PIC16F1459
-        Driver Version    :  2.01
+        Driver Version    :  2.1.0
     The generated drivers are tested against the following:
-        Compiler          :  XC8 1.45
-        MPLAB 	          :  MPLAB X 4.15
+        Compiler          :  XC8 2.00
+        MPLAB 	          :  MPLAB X 5.10
 */
 
 /*
@@ -67,6 +67,20 @@
 */
 
 #define EUSART_DataReady  (EUSART_is_rx_ready())
+
+/**
+  Section: Data Type Definitions
+*/
+
+typedef union {
+    struct {
+        unsigned perr : 1;
+        unsigned ferr : 1;
+        unsigned oerr : 1;
+        unsigned reserved : 5;
+    };
+    uint8_t status;
+}eusart_status_t;
 
 
 /**
